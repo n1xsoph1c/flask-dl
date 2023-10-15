@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, url_for, jsonify
 from flask import Flask
 from pytube import YouTube, Search
+from flask_cors import CORS
 
 
 app = Flask(__name__)
-
+CORS(app)
 
 def checkIfYoutube(url: str):
     return url.__contains__("youtube") or url.__contains__('youtu.be')
@@ -61,7 +62,7 @@ def get_video(videoQuery):
 # Pass the required route to the decorator.
 
 
-@app.route('/', methods=['POST'])
+@app.route('/music', methods=['POST'])
 def index_post():
     input_json = request.get_json(force=True)
     # force=True, above, is necessary if another developer
@@ -69,11 +70,11 @@ def index_post():
 
     if input_json:
         if input_json['type'] == 'video':
-            return get_video(input_json['query'])
+            return jsonify(get_video(input_json['query']))
         if input_json['type'] == 'audio':
-            return get_audio(input_json['query'])
+            return jsonify(get_audio(input_json['query']))
     else:
-        return {'usage': 'POST'}
+        return jsonify({'usage': 'POST'})
 
 
 @app.route("/")
@@ -82,4 +83,4 @@ def index():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
